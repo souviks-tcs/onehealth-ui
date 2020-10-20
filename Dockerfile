@@ -16,6 +16,7 @@ FROM registry.access.redhat.com/ubi8/nodejs-12:1-52
 COPY --from=builder /opt/app-root/src/client/build client/build
 COPY public public
 COPY server server
+COPY client/build/ client/public/
 COPY client/package*.json client/
 COPY package.json .
 RUN npm install --production
