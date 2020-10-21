@@ -1,29 +1,17 @@
-FROM registry.access.redhat.com/ubi8/nodejs-12:1-52 AS builder
-
-WORKDIR /opt/app-root/src
-
-RUN mkdir client
-COPY --chown=default:root client client
-COPY client/package*.json client/
-COPY package*.json ./
-RUN npm ci
-RUN cd client && npm ci
-
-RUN npm run build
-
 FROM registry.access.redhat.com/ubi8/nodejs-12:1-52
+RUN mkdir app
 
-COPY --from=builder /opt/app-root/src/client/build client/build
-COPY public public
-COPY client/build/ public/
-COPY server server
-COPY client/package*.json client/
-COPY package.json .
-RUN npm install --production
+# Install npm production packages
+COPY package.json ./app
+RUN cd ./app; npm install --production
 
-ENV NODE_ENV=production
-ENV HOST=0.0.0.0 PORT=3000
+COPY . ./app
 
-EXPOSE 3000/tcp
+ENV NODE_ENV production
+ENV PORT 3000
+
+EXPOSE 3000
+
+WORKDIR ./app
 
 CMD ["npm", "start"]
